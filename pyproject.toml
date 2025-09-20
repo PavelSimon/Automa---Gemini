@@ -1,0 +1,15 @@
+[project]
+name = "automa-gemini"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "sqlalchemy",
+    "celery",
+    "passlib[bcrypt]",
+    "python-jose[cryptography]",
+    "python-multipart",
+]
