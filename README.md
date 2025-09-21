@@ -77,8 +77,8 @@ The web dashboard will be available at `http://localhost:8000/dashboard`
 The Automa-Gemini dashboard provides a complete web interface for managing your Python scripts and agents:
 
 ### Authentication
-- **User Registration**: Create new accounts with email and password
-- **Email/Password Login**: Standard authentication with JWT tokens
+- **User Registration**: Create new accounts with email and password (`POST /register`)
+- **Email/Password Login**: Standard authentication with JWT tokens (`POST /token`)
 - **Token-based login**: Direct API token entry for advanced users
 - **Persistent sessions**: Authentication tokens stored locally
 - **Secure logout**: Properly clears session data and local storage
