@@ -15,16 +15,18 @@ This project is a web application for managing, monitoring, scheduling, and audi
 ### Implemented
 - User authentication with JWT tokens
 - Full CRUD operations for Agents, Scripts, and Tasks
+- Task scheduling with APScheduler
+- Script execution with basic sandboxing
+- Comprehensive audit logging system
 - RESTful API with OpenAPI documentation
 - Environment-based configuration
 - SQLite database with SQLAlchemy ORM
 
 ### Planned
-- Task scheduling with APScheduler
-- Script execution sandboxing
-- Audit logging system
 - Web dashboard
-- Advanced security features
+- Advanced security features (Docker sandboxing, role-based access)
+- Real-time monitoring
+- Plugin architecture
 
 ## API Endpoints
 
@@ -50,9 +52,13 @@ This project is a web application for managing, monitoring, scheduling, and audi
 ### Tasks
 - `GET /tasks/` - List all tasks
 - `GET /tasks/{id}` - Get task by ID
-- `POST /tasks/` - Create new task
+- `POST /tasks/` - Create new task (supports scheduled_time for scheduling)
 - `PUT /tasks/{id}` - Update task
 - `DELETE /tasks/{id}` - Delete task
+- `POST /tasks/{id}/execute` - Execute task immediately
+
+### Audit Logs
+- `GET /audit/` - List audit logs (filterable by user_id, resource_type)
 
 ## Running the Application
 

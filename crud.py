@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+import json
+from datetime import datetime
 
-from models import User, Agent, Script, Task
-from schemas import UserCreate, AgentCreate, ScriptCreate, TaskCreate
+from models import User, Agent, Script, Task, AuditLog
+from schemas import UserCreate, AgentCreate, ScriptCreate, TaskCreate, AuditLogCreate
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -95,11 +97,12 @@ def create_task(db: Session, task: TaskCreate):
     db.refresh(db_task)
     return db_task
 
-def update_task(db: Session, task_id: int, task: TaskCreate):
+def update_task(db: Session, task_id: int, updates: dict):
     db_task = db.query(Task).filter(Task.id == task_id).first()
     if db_task:
-        for key, value in task.dict().items():
-            setattr(db_task, key, value)
+        for key, value in updates.items():
+            if hasattr(db_task, key):
+                setattr(db_task, key, value)
         db.commit()
         db.refresh(db_task)
     return db_task
@@ -110,3 +113,35 @@ def delete_task(db: Session, task_id: int):
         db.delete(db_task)
         db.commit()
     return db_task
+
+# Audit Log CRUD
+def create_audit_log(db: Session, audit_log: AuditLogCreate):
+    db_audit_log = AuditLog(**audit_log.dict())
+    db.add(db_audit_log)
+    db.commit()
+    db.refresh(db_audit_log)
+    return db_audit_log
+
+def get_audit_logs(db: Session, skip: int = 0, limit: int = 100, user_id: int = None, resource_type: str = None):
+    query = db.query(AuditLog)
+    if user_id:
+        query = query.filter(AuditLog.user_id == user_id)
+    if resource_type:
+        query = query.filter(AuditLog.resource_type == resource_type)
+    return query.order_by(AuditLog.timestamp.desc()).offset(skip).limit(limit).all()
+
+from typing import Optional
+
+def log_action(db: Session, user_id: Optional[int] = None, action: str = "", resource_type: str = "",
+               resource_id: Optional[int] = None, details: Optional[dict] = None, ip_address: Optional[str] = None):
+    """Helper function to log actions"""
+    details_str = json.dumps(details) if details else None
+    audit_log = AuditLogCreate(
+        user_id=user_id,
+        action=action,
+        resource_type=resource_type,
+        resource_id=resource_id,
+        details=details_str,
+        ip_address=ip_address
+    )
+    return create_audit_log(db, audit_log)

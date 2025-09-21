@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class UserCreate(BaseModel):
     email: str
@@ -36,6 +37,7 @@ class Agent(AgentBase):
 class ScriptBase(BaseModel):
     name: str
     description: str
+    content: str
     filename: str
 
 class ScriptCreate(ScriptBase):
@@ -54,10 +56,40 @@ class TaskBase(BaseModel):
     agent_id: int
 
 class TaskCreate(TaskBase):
-    pass
+    scheduled_time: Optional[datetime] = None
 
 class Task(TaskBase):
     id: int
+    status: str
+    scheduled_time: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class TaskUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    script_id: Optional[int] = None
+    agent_id: Optional[int] = None
+    status: Optional[str] = None
+    scheduled_time: Optional[datetime] = None
+
+class AuditLogBase(BaseModel):
+    user_id: Optional[int]
+    action: str
+    resource_type: str
+    resource_id: Optional[int]
+    details: Optional[str]
+    ip_address: Optional[str]
+
+class AuditLogCreate(AuditLogBase):
+    pass
+
+class AuditLog(AuditLogBase):
+    id: int
+    timestamp: datetime
 
     class Config:
         orm_mode = True
