@@ -227,16 +227,16 @@ def read_audit_logs(skip: int = 0, limit: int = 100, user_id: int = None, resour
 
 # Task execution endpoint
 @app.post("/tasks/{task_id}/execute")
-def execute_task_now(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth.get_current_user)):
+async def execute_task_now(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth.get_current_user)):
     """Manually execute a task immediately"""
     from scheduler import execute_task
-    import asyncio
 
     task = crud.get_task(db, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
     # Run execution in background
+    import asyncio
     asyncio.create_task(execute_task(task_id))
 
     return {"message": f"Task {task_id} execution started"}
