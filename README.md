@@ -70,7 +70,9 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000
 
 The API documentation will be available at `http://localhost:8000/docs`
 
-The web dashboard will be available at `http://localhost:8000/dashboard`
+The application is accessible at:
+- `http://localhost:8000/login` - Login and registration page
+- `http://localhost:8000/dashboard` - Main dashboard (shows login if not authenticated)
 
 ## Dashboard Features
 

@@ -115,6 +115,11 @@ def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: U
 def read_users_me(current_user: User = Depends(auth.get_current_user)):
     return current_user
 
+@app.post("/logout")
+def logout():
+    """Client-side logout endpoint (tokens are stateless, so just return success)"""
+    return {"message": "Logged out successfully"}
+
 # Agent endpoints
 @app.get("/agents/", response_model=List[Agent])
 def read_agents(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(auth.get_current_user)):
@@ -236,11 +241,16 @@ def execute_task_now(task_id: int, db: Session = Depends(get_db), current_user: 
 
     return {"message": f"Task {task_id} execution started"}
 
+@app.get("/login")
+def get_login():
+    """Serve the login page (no authentication required)"""
+    return FileResponse("static/index.html", media_type="text/html")
+
 @app.get("/dashboard")
 def get_dashboard():
-    """Serve the main dashboard"""
+    """Serve the main dashboard (authentication handled by frontend)"""
     return FileResponse("static/index.html", media_type="text/html")
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World", "dashboard": "/dashboard", "docs": "/docs"}
+    return {"Hello": "World", "login": "/login", "dashboard": "/dashboard", "docs": "/docs"}
