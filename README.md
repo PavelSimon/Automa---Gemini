@@ -72,6 +72,34 @@ The API documentation will be available at `http://localhost:8000/docs`
 
 The web dashboard will be available at `http://localhost:8000/dashboard`
 
+## Dashboard Features
+
+The Automa-Gemini dashboard provides a complete web interface for managing your Python scripts and agents:
+
+### Authentication
+- **User Registration**: Create new accounts with email and password
+- **Email/Password Login**: Standard authentication with JWT tokens
+- **Token-based login**: Direct API token entry for advanced users
+- **Persistent sessions**: Authentication tokens stored locally
+- **Secure logout**: Properly clears session data and local storage
+
+### Dashboard Overview
+- **Real-time statistics**: Live counts of agents, scripts, tasks, and running processes
+- **Recent activity**: Latest task executions with status indicators
+- **Auto-refresh**: Configurable automatic data updates
+
+### Management Sections
+- **Agents**: Create and manage execution agents
+- **Scripts**: Upload and manage Python scripts with validation
+- **Tasks**: Schedule and execute tasks with real-time monitoring
+- **Audit Logs**: Comprehensive activity logging and monitoring
+
+### Advanced Features
+- **Settings**: Configurable refresh intervals and preferences
+- **Data Export**: Download all system data as JSON
+- **Connection Testing**: Verify API connectivity
+- **User Profile**: View current user information
+
 ## Environment Configuration
 
 Create a `.env` file in the project root with:

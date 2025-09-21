@@ -36,43 +36,164 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-2 sidebar p-0">
-                <div class="p-3">
-                    <h5 class="text-white mb-4">
-                        <i class="fas fa-robot me-2"></i>Automa-Gemini
-                    </h5>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#dashboard" onclick="showSection('dashboard')">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#agents" onclick="showSection('agents')">
-                                <i class="fas fa-users-cog me-2"></i>Agents
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#scripts" onclick="showSection('scripts')">
-                                <i class="fas fa-code me-2"></i>Scripts
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#tasks" onclick="showSection('tasks')">
-                                <i class="fas fa-tasks me-2"></i>Tasks
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#logs" onclick="showSection('logs')">
-                                <i class="fas fa-history me-2"></i>Audit Logs
-                            </a>
-                        </li>
-                    </ul>
+    <!-- Login Screen -->
+    <div id="login-screen" class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>Automa-Gemini
+                        </h3>
+                        <p class="mb-0">Python Script & Agent Management</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Tab Navigation -->
+                        <ul class="nav nav-tabs mb-4" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">
+                                    <i class="fas fa-user-plus me-1"></i>Register
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="token-tab" data-bs-toggle="tab" data-bs-target="#token" type="button" role="tab">
+                                    <i class="fas fa-key me-1"></i>API Token
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="authTabsContent">
+                            <!-- Login Tab -->
+                            <div class="tab-pane fade show active" id="login" role="tabpanel">
+                                <form id="loginForm" onsubmit="loginWithCredentials(); return false;">
+                                    <div class="mb-3">
+                                        <label for="loginEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="loginEmail" placeholder="user@example.com" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="loginPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Register Tab -->
+                            <div class="tab-pane fade" id="register" role="tabpanel">
+                                <form id="registerForm" onsubmit="registerUser(); return false;">
+                                    <div class="mb-3">
+                                        <label for="registerEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="registerEmail" placeholder="user@example.com" required>
+                                        <div class="form-text">This will be your username for login</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="registerPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="registerPassword" placeholder="Choose a strong password" required minlength="6">
+                                        <div class="form-text">Minimum 6 characters</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                        <input type="password" class="form-control" id="confirmPassword" placeholder="Repeat your password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100" id="registerBtn">
+                                        <i class="fas fa-user-plus me-2"></i>Create Account
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Token Tab -->
+                            <div class="tab-pane fade" id="token" role="tabpanel">
+                                <div class="alert alert-info">
+                                    <strong>Advanced:</strong> Enter an API token directly if you already have one from the API.
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="apiToken" placeholder="Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="loginWithToken()">
+                                        <i class="fas fa-key"></i> Use Token
+                                    </button>
+                                </div>
+                                <div class="form-text mt-2">
+                                    Get a token by using <code>POST /token</code> with your credentials, or create an account first.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Messages -->
+                        <div id="authMessage" class="mt-3 d-none"></div>
+                    </div>
                 </div>
-            </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application (hidden initially) -->
+    <div id="main-app" class="d-none">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-2 sidebar p-0">
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="text-white mb-0">
+                                <i class="fas fa-robot me-2"></i>Automa-Gemini
+                            </h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showProfile()">
+                                        <i class="fas fa-user-circle me-2"></i>Profile
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="logout()">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#dashboard" onclick="showSection('dashboard')">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#agents" onclick="showSection('agents')">
+                                    <i class="fas fa-users-cog me-2"></i>Agents
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#scripts" onclick="showSection('scripts')">
+                                    <i class="fas fa-code me-2"></i>Scripts
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#tasks" onclick="showSection('tasks')">
+                                    <i class="fas fa-tasks me-2"></i>Tasks
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#logs" onclick="showSection('logs')">
+                                    <i class="fas fa-history me-2"></i>Audit Logs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#settings" onclick="showSection('settings')">
+                                    <i class="fas fa-cog me-2"></i>Settings
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
 
             <!-- Main content -->
             <main class="col-md-10 ms-sm-auto px-4">
@@ -213,6 +334,107 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Settings Section -->
+                <div id="settings-section" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Settings</h1>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">System Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Application</h6>
+                                            <p class="text-muted mb-1">Automa-Gemini v0.1.0</p>
+                                            <p class="text-muted mb-1">Python Script & Agent Management</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>API Status</h6>
+                                            <p class="text-success mb-1" id="api-status">
+                                                <i class="fas fa-circle me-1"></i>Connected
+                                            </p>
+                                            <p class="text-muted mb-1">Scheduler: <span id="scheduler-status">Running</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Configuration</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="settingsForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Refresh Interval (seconds)</label>
+                                            <input type="number" class="form-control" id="refreshInterval" value="30" min="5" max="300">
+                                            <div class="form-text">How often to refresh dashboard data</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Max Log Entries</label>
+                                            <input type="number" class="form-control" id="maxLogEntries" value="100" min="10" max="1000">
+                                            <div class="form-text">Maximum number of audit log entries to display</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                                                <label class="form-check-label" for="autoRefresh">
+                                                    Auto-refresh dashboard data
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-primary" onclick="saveSettings()">
+                                            <i class="fas fa-save me-2"></i>Save Settings
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Quick Actions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <button class="btn btn-outline-primary w-100 mb-2" onclick="testConnection()">
+                                        <i class="fas fa-plug me-2"></i>Test API Connection
+                                    </button>
+                                    <button class="btn btn-outline-info w-100 mb-2" onclick="clearCache()">
+                                        <i class="fas fa-broom me-2"></i>Clear Local Cache
+                                    </button>
+                                    <button class="btn btn-outline-warning w-100 mb-2" onclick="exportData()">
+                                        <i class="fas fa-download me-2"></i>Export Data
+                                    </button>
+                                    <hr>
+                                    <button class="btn btn-outline-danger w-100" onclick="resetSettings()">
+                                        <i class="fas fa-undo me-2"></i>Reset to Defaults
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">About</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted small">
+                                        Automa-Gemini is a comprehensive web application for managing, monitoring, scheduling, and auditing Python scripts and agents.
+                                    </p>
+                                    <p class="text-muted small mb-0">
+                                        Built with FastAPI, SQLAlchemy, and modern web technologies.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -339,47 +561,324 @@
         let currentUser = null;
         let authToken = null;
 
+        // Settings
+        let settings = {
+            refreshInterval: 30,
+            maxLogEntries: 100,
+            autoRefresh: true
+        };
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const saved = localStorage.getItem('dashboardSettings');
+            if (saved) {
+                settings = { ...settings, ...JSON.parse(saved) };
+            }
+            applySettings();
+        }
+
+        function saveSettingsToStorage() {
+            localStorage.setItem('dashboardSettings', JSON.stringify(settings));
+        }
+
+        function applySettings() {
+            document.getElementById('refreshInterval').value = settings.refreshInterval;
+            document.getElementById('maxLogEntries').value = settings.maxLogEntries;
+            document.getElementById('autoRefresh').checked = settings.autoRefresh;
+        }
+
         // Initialize the dashboard
         document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+
             // Check if user is logged in
             const token = localStorage.getItem('authToken');
             if (token) {
                 authToken = token;
-                showDashboard();
+                showMainApp();
             } else {
-                showLogin();
+                showLoginScreen();
             }
         });
 
-        function showLogin() {
-            // For now, just show a simple login form
-            const loginHtml = `
-                <div class="container mt-5">
-                    <div class="row justify-content-center">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3>Login to Automa-Gemini</h3>
-                                </div>
-                                <div class="card-body">
-                                    <div class="alert alert-info">
-                                        Please use the API to authenticate first, then refresh this page.
-                                        <br><br>
-                                        <strong>API Endpoint:</strong> <code>POST /token</code>
-                                        <br>
-                                        <strong>Example:</strong> <code>{"username": "user@example.com", "password": "password"}</code>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.innerHTML = loginHtml;
+        function showLoginScreen() {
+            document.getElementById('login-screen').classList.remove('d-none');
+            document.getElementById('main-app').classList.add('d-none');
+        }
+
+        function showMainApp() {
+            document.getElementById('login-screen').classList.add('d-none');
+            document.getElementById('main-app').classList.remove('d-none');
+            showSection('dashboard');
+            startAutoRefresh();
         }
 
         function showDashboard() {
             refreshData();
+        }
+
+        // Message display function
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('authMessage');
+            messageDiv.className = `alert alert-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.classList.remove('d-none');
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.classList.add('d-none');
+            }, 5000);
+        }
+
+        // Login functions
+        async function loginWithCredentials() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showMessage('Please enter both email and password', 'warning');
+                return;
+            }
+
+            // Show loading state
+            const btn = document.getElementById('loginBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Logging in...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        username: email,
+                        password: password
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access_token;
+                    localStorage.setItem('authToken', authToken);
+                    showMessage('Login successful! Welcome to Automa-Gemini.', 'success');
+                    setTimeout(() => showMainApp(), 1000);
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showMessage(errorData.detail || 'Login failed. Please check your credentials.', 'danger');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('Login failed. Please check your connection and try again.', 'danger');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Registration function
+        async function registerUser() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!email || !password) {
+                showMessage('Please fill in all required fields', 'warning');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters long', 'warning');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'warning');
+                return;
+            }
+
+            // Show loading state
+            const btn = document.getElementById('registerBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating account...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/users/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                if (response.ok) {
+                    showMessage('Account created successfully! You can now log in.', 'success');
+
+                    // Switch to login tab
+                    const loginTab = document.getElementById('login-tab');
+                    const tab = new bootstrap.Tab(loginTab);
+                    tab.show();
+
+                    // Pre-fill login form
+                    document.getElementById('loginEmail').value = email;
+
+                    // Clear registration form
+                    document.getElementById('registerEmail').value = '';
+                    document.getElementById('registerPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showMessage(errorData.detail || 'Registration failed. Please try again.', 'danger');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage('Registration failed. Please check your connection and try again.', 'danger');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function loginWithToken() {
+            const token = document.getElementById('apiToken').value.trim();
+            if (!token) {
+                alert('Please enter a token');
+                return;
+            }
+
+            // Validate token format (should start with Bearer or just be the token)
+            const cleanToken = token.replace('Bearer ', '');
+            authToken = cleanToken;
+            localStorage.setItem('authToken', cleanToken);
+            showMainApp();
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('authToken');
+            stopAutoRefresh();
+            showLoginScreen();
+        }
+
+        // Profile functions
+        async function showProfile() {
+            try {
+                const response = await fetch('/users/me/', { headers: getAuthHeaders() });
+                if (response.ok) {
+                    const user = await response.json();
+                    alert(`User Profile:\n\nEmail: ${user.email}\nID: ${user.id}`);
+                } else {
+                    alert('Failed to load user profile');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                alert('Error loading profile');
+            }
+        }
+
+        // Settings functions
+        function saveSettings() {
+            settings.refreshInterval = parseInt(document.getElementById('refreshInterval').value);
+            settings.maxLogEntries = parseInt(document.getElementById('maxLogEntries').value);
+            settings.autoRefresh = document.getElementById('autoRefresh').checked;
+
+            saveSettingsToStorage();
+            applySettings();
+
+            if (settings.autoRefresh) {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+            }
+
+            alert('Settings saved successfully!');
+        }
+
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to defaults?')) {
+                settings = {
+                    refreshInterval: 30,
+                    maxLogEntries: 100,
+                    autoRefresh: true
+                };
+                saveSettingsToStorage();
+                applySettings();
+                alert('Settings reset to defaults');
+            }
+        }
+
+        // Auto refresh functionality
+        let autoRefreshInterval = null;
+
+        function startAutoRefresh() {
+            stopAutoRefresh(); // Clear any existing interval
+            if (settings.autoRefresh) {
+                autoRefreshInterval = setInterval(refreshData, settings.refreshInterval * 1000);
+            }
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // Quick actions
+        async function testConnection() {
+            try {
+                const response = await fetch('/', { headers: getAuthHeaders() });
+                if (response.ok) {
+                    alert('✅ API connection successful!');
+                } else {
+                    alert('❌ API connection failed');
+                }
+            } catch (error) {
+                alert('❌ API connection failed: ' + error.message);
+            }
+        }
+
+        function clearCache() {
+            localStorage.removeItem('dashboardSettings');
+            loadSettings();
+            alert('Local cache cleared');
+        }
+
+        async function exportData() {
+            try {
+                const [agentsRes, scriptsRes, tasksRes, logsRes] = await Promise.all([
+                    fetch('/agents/', { headers: getAuthHeaders() }),
+                    fetch('/scripts/', { headers: getAuthHeaders() }),
+                    fetch('/tasks/', { headers: getAuthHeaders() }),
+                    fetch('/audit/', { headers: getAuthHeaders() })
+                ]);
+
+                const data = {
+                    agents: agentsRes.ok ? await agentsRes.json() : [],
+                    scripts: scriptsRes.ok ? await scriptsRes.json() : [],
+                    tasks: tasksRes.ok ? await tasksRes.json() : [],
+                    audit_logs: logsRes.ok ? await logsRes.json() : [],
+                    exported_at: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `automa-gemini-export-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Export failed: ' + error.message);
+            }
         }
 
         function showSection(sectionName) {
