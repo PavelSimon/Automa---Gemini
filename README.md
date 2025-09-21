@@ -70,6 +70,8 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000
 
 The API documentation will be available at `http://localhost:8000/docs`
 
+The web dashboard will be available at `http://localhost:8000/dashboard`
+
 ## Environment Configuration
 
 Create a `.env` file in the project root with:

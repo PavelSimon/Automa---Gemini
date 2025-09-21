@@ -1,5 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 import asyncio
@@ -14,6 +17,18 @@ from scheduler import schedule_task, cancel_task_schedule, start_scheduler, stop
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 async def startup_event():
@@ -212,6 +227,11 @@ def execute_task_now(task_id: int, db: Session = Depends(get_db), current_user: 
 
     return {"message": f"Task {task_id} execution started"}
 
+@app.get("/dashboard")
+def get_dashboard():
+    """Serve the main dashboard"""
+    return FileResponse("static/index.html", media_type="text/html")
+
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "World", "dashboard": "/dashboard", "docs": "/docs"}

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automa-Gemini Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: #343a40;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.75);
+            padding: 0.75rem 1rem;
+        }
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,.1);
+        }
+        .sidebar .nav-link.active {
+            color: #fff;
+            background: #0d6efd;
+        }
+        .status-badge {
+            font-size: 0.75em;
+        }
+        .task-card {
+            transition: transform 0.2s;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 sidebar p-0">
+                <div class="p-3">
+                    <h5 class="text-white mb-4">
+                        <i class="fas fa-robot me-2"></i>Automa-Gemini
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard" onclick="showSection('dashboard')">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#agents" onclick="showSection('agents')">
+                                <i class="fas fa-users-cog me-2"></i>Agents
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#scripts" onclick="showSection('scripts')">
+                                <i class="fas fa-code me-2"></i>Scripts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tasks" onclick="showSection('tasks')">
+                                <i class="fas fa-tasks me-2"></i>Tasks
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#logs" onclick="showSection('logs')">
+                                <i class="fas fa-history me-2"></i>Audit Logs
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-10 ms-sm-auto px-4">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="section">
+                    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Dashboard</h1>
+                        <button class="btn btn-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh
+                        </button>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-white bg-primary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title mb-0" id="agents-count">0</h5>
+                                            <p class="card-text">Agents</p>
+                                        </div>
+                                        <i class="fas fa-users-cog fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-success">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title mb-0" id="scripts-count">0</h5>
+                                            <p class="card-text">Scripts</p>
+                                        </div>
+                                        <i class="fas fa-code fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-warning">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title mb-0" id="tasks-count">0</h5>
+                                            <p class="card-text">Tasks</p>
+                                        </div>
+                                        <i class="fas fa-tasks fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-info">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title mb-0" id="running-tasks">0</h5>
+                                            <p class="card-text">Running</p>
+                                        </div>
+                                        <i class="fas fa-play-circle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Tasks -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Recent Tasks</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recent-tasks" class="list-group">
+                                        <!-- Tasks will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agents Section -->
+                <div id="agents-section" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Agents</h1>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agentModal">
+                            <i class="fas fa-plus me-2"></i>Add Agent
+                        </button>
+                    </div>
+                    <div id="agents-list" class="row">
+                        <!-- Agents will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Scripts Section -->
+                <div id="scripts-section" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Scripts</h1>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#scriptModal">
+                            <i class="fas fa-plus me-2"></i>Add Script
+                        </button>
+                    </div>
+                    <div id="scripts-list" class="row">
+                        <!-- Scripts will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Tasks Section -->
+                <div id="tasks-section" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Tasks</h1>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#taskModal">
+                            <i class="fas fa-plus me-2"></i>Create Task
+                        </button>
+                    </div>
+                    <div id="tasks-list" class="row">
+                        <!-- Tasks will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Logs Section -->
+                <div id="logs-section" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Audit Logs</h1>
+                        <button class="btn btn-secondary" onclick="refreshLogs()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="logs-table" class="table-responsive">
+                                <!-- Logs will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Agent Modal -->
+    <div class="modal fade" id="agentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Agent</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="agentForm">
+                        <div class="mb-3">
+                            <label for="agentName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="agentName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="agentDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="agentDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="agentStatus" class="form-label">Status</label>
+                            <select class="form-control" id="agentStatus">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAgent()">Save Agent</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Modal -->
+    <div class="modal fade" id="scriptModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Script</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="scriptForm">
+                        <div class="mb-3">
+                            <label for="scriptName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="scriptName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scriptDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="scriptDescription" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scriptFilename" class="form-label">Filename</label>
+                            <input type="text" class="form-control" id="scriptFilename" placeholder="script.py">
+                        </div>
+                        <div class="mb-3">
+                            <label for="scriptContent" class="form-label">Script Content</label>
+                            <textarea class="form-control" id="scriptContent" rows="10" placeholder="print('Hello, World!')"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveScript()">Save Script</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal fade" id="taskModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="taskForm">
+                        <div class="mb-3">
+                            <label for="taskName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="taskName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="taskDescription" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="taskAgent" class="form-label">Agent</label>
+                                <select class="form-control" id="taskAgent" required>
+                                    <option value="">Select Agent</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="taskScript" class="form-label">Script</label>
+                                <select class="form-control" id="taskScript" required>
+                                    <option value="">Select Script</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskScheduledTime" class="form-label">Scheduled Time (Optional)</label>
+                            <input type="datetime-local" class="form-control" id="taskScheduledTime">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveTask()">Create Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUser = null;
+        let authToken = null;
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                authToken = token;
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        });
+
+        function showLogin() {
+            // For now, just show a simple login form
+            const loginHtml = `
+                <div class="container mt-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Login to Automa-Gemini</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        Please use the API to authenticate first, then refresh this page.
+                                        <br><br>
+                                        <strong>API Endpoint:</strong> <code>POST /token</code>
+                                        <br>
+                                        <strong>Example:</strong> <code>{"username": "user@example.com", "password": "password"}</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.innerHTML = loginHtml;
+        }
+
+        function showDashboard() {
+            refreshData();
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('d-none');
+            });
+
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.remove('d-none');
+
+            // Update active nav link
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[href="#${sectionName}"]`).classList.add('active');
+
+            // Load section data
+            switch(sectionName) {
+                case 'agents':
+                    loadAgents();
+                    break;
+                case 'scripts':
+                    loadScripts();
+                    break;
+                case 'tasks':
+                    loadTasks();
+                    break;
+                case 'logs':
+                    loadLogs();
+                    break;
+            }
+        }
+
+        async function refreshData() {
+            try {
+                const [agentsRes, scriptsRes, tasksRes] = await Promise.all([
+                    fetch('/agents/', { headers: getAuthHeaders() }),
+                    fetch('/scripts/', { headers: getAuthHeaders() }),
+                    fetch('/tasks/', { headers: getAuthHeaders() })
+                ]);
+
+                if (agentsRes.ok) {
+                    const agents = await agentsRes.json();
+                    document.getElementById('agents-count').textContent = agents.length;
+                }
+
+                if (scriptsRes.ok) {
+                    const scripts = await scriptsRes.json();
+                    document.getElementById('scripts-count').textContent = scripts.length;
+                }
+
+                if (tasksRes.ok) {
+                    const tasks = await tasksRes.json();
+                    document.getElementById('tasks-count').textContent = tasks.length;
+                    const runningTasks = tasks.filter(t => t.status === 'running').length;
+                    document.getElementById('running-tasks').textContent = runningTasks;
+
+                    // Show recent tasks
+                    displayRecentTasks(tasks.slice(0, 5));
+                }
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        }
+
+        function displayRecentTasks(tasks) {
+            const container = document.getElementById('recent-tasks');
+            if (tasks.length === 0) {
+                container.innerHTML = '<p class="text-muted mb-0">No tasks found</p>';
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => `
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${task.name}</h6>
+                        <small class="text-muted">${new Date(task.created_at).toLocaleString()}</small>
+                    </div>
+                    <p class="mb-1">${task.description || 'No description'}</p>
+                    <small class="text-${getStatusColor(task.status)}">
+                        <i class="fas ${getStatusIcon(task.status)} me-1"></i>${task.status}
+                    </small>
+                </div>
+            `).join('');
+        }
+
+        async function loadAgents() {
+            try {
+                const response = await fetch('/agents/', { headers: getAuthHeaders() });
+                if (response.ok) {
+                    const agents = await response.json();
+                    displayAgents(agents);
+                }
+            } catch (error) {
+                console.error('Error loading agents:', error);
+            }
+        }
+
+        function displayAgents(agents) {
+            const container = document.getElementById('agents-list');
+            if (agents.length === 0) {
+                container.innerHTML = '<div class="col-12"><p class="text-muted">No agents found</p></div>';
+                return;
+            }
+
+            container.innerHTML = agents.map(agent => `
+                <div class="col-md-4 mb-4">
+                    <div class="card task-card">
+                        <div class="card-body">
+                            <h5 class="card-title">${agent.name}</h5>
+                            <p class="card-text">${agent.description || 'No description'}</p>
+                            <span class="badge bg-${agent.status === 'active' ? 'success' : 'secondary'}">
+                                ${agent.status}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadScripts() {
+            try {
+                const response = await fetch('/scripts/', { headers: getAuthHeaders() });
+                if (response.ok) {
+                    const scripts = await response.json();
+                    displayScripts(scripts);
+                }
+            } catch (error) {
+                console.error('Error loading scripts:', error);
+            }
+        }
+
+        function displayScripts(scripts) {
+            const container = document.getElementById('scripts-list');
+            if (scripts.length === 0) {
+                container.innerHTML = '<div class="col-12"><p class="text-muted">No scripts found</p></div>';
+                return;
+            }
+
+            container.innerHTML = scripts.map(script => `
+                <div class="col-md-6 mb-4">
+                    <div class="card task-card">
+                        <div class="card-body">
+                            <h5 class="card-title">${script.name}</h5>
+                            <p class="card-text">${script.description || 'No description'}</p>
+                            <small class="text-muted">${script.filename}</small>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewScript(${script.id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteScript(${script.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadTasks() {
+            try {
+                const response = await fetch('/tasks/', { headers: getAuthHeaders() });
+                if (response.ok) {
+                    const tasks = await response.json();
+                    displayTasks(tasks);
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+
+        function displayTasks(tasks) {
+            const container = document.getElementById('tasks-list');
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="col-12"><p class="text-muted">No tasks found</p></div>';
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => `
+                <div class="col-md-6 mb-4">
+                    <div class="card task-card">
+                        <div class="card-body">
+                            <h5 class="card-title">${task.name}</h5>
+                            <p class="card-text">${task.description || 'No description'}</p>
+                            <div class="mb-2">
+                                <span class="badge bg-${getStatusColor(task.status)} me-2">
+                                    <i class="fas ${getStatusIcon(task.status)} me-1"></i>${task.status}
+                                </span>
+                                ${task.scheduled_time ? `<small class="text-muted">Scheduled: ${new Date(task.scheduled_time).toLocaleString()}</small>` : ''}
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="executeTask(${task.id})">
+                                    <i class="fas fa-play"></i> Run
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteTask(${task.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadLogs() {
+            try {
+                const response = await fetch('/audit/', { headers: getAuthHeaders() });
+                if (response.ok) {
+                    const logs = await response.json();
+                    displayLogs(logs);
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        function displayLogs(logs) {
+            const container = document.getElementById('logs-table');
+            if (logs.length === 0) {
+                container.innerHTML = '<p class="text-muted">No audit logs found</p>';
+                return;
+            }
+
+            const tableHtml = `
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Resource</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${logs.map(log => `
+                            <tr>
+                                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                                <td>${log.user_id || 'System'}</td>
+                                <td>${log.action}</td>
+                                <td>${log.resource_type} ${log.resource_id || ''}</td>
+                                <td><small>${log.details || ''}</small></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            container.innerHTML = tableHtml;
+        }
+
+        function getAuthHeaders() {
+            return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'completed': return 'success';
+                case 'running': return 'primary';
+                case 'failed': return 'danger';
+                case 'pending': return 'warning';
+                default: return 'secondary';
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'completed': return 'fa-check-circle';
+                case 'running': return 'fa-play-circle';
+                case 'failed': return 'fa-times-circle';
+                case 'pending': return 'fa-clock';
+                default: return 'fa-question-circle';
+            }
+        }
+
+        // Placeholder functions for form handling
+        async function saveAgent() {
+            const formData = {
+                name: document.getElementById('agentName').value,
+                description: document.getElementById('agentDescription').value,
+                status: document.getElementById('agentStatus').value
+            };
+
+            try {
+                const response = await fetch('/agents/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('agentModal')).hide();
+                    loadAgents();
+                    refreshData();
+                } else {
+                    alert('Error saving agent');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving agent');
+            }
+        }
+
+        async function saveScript() {
+            const formData = {
+                name: document.getElementById('scriptName').value,
+                description: document.getElementById('scriptDescription').value,
+                filename: document.getElementById('scriptFilename').value || 'script.py',
+                content: document.getElementById('scriptContent').value
+            };
+
+            try {
+                const response = await fetch('/scripts/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('scriptModal')).hide();
+                    loadScripts();
+                    refreshData();
+                } else {
+                    alert('Error saving script');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving script');
+            }
+        }
+
+        async function saveTask() {
+            const scheduledTime = document.getElementById('taskScheduledTime').value;
+            const formData = {
+                name: document.getElementById('taskName').value,
+                description: document.getElementById('taskDescription').value,
+                agent_id: parseInt(document.getElementById('taskAgent').value),
+                script_id: parseInt(document.getElementById('taskScript').value),
+                scheduled_time: scheduledTime ? new Date(scheduledTime).toISOString() : null
+            };
+
+            try {
+                const response = await fetch('/tasks/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('taskModal')).hide();
+                    loadTasks();
+                    refreshData();
+                } else {
+                    alert('Error creating task');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating task');
+            }
+        }
+
+        async function executeTask(taskId) {
+            try {
+                const response = await fetch(`/tasks/${taskId}/execute`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    alert('Task execution started');
+                    refreshData();
+                } else {
+                    alert('Error executing task');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error executing task');
+            }
+        }
+
+        function refreshLogs() {
+            loadLogs();
+        }
+
+        // Load agents and scripts for task creation
+        document.getElementById('taskModal').addEventListener('show.bs.modal', async function() {
+            try {
+                const [agentsRes, scriptsRes] = await Promise.all([
+                    fetch('/agents/', { headers: getAuthHeaders() }),
+                    fetch('/scripts/', { headers: getAuthHeaders() })
+                ]);
+
+                if (agentsRes.ok) {
+                    const agents = await agentsRes.json();
+                    const agentSelect = document.getElementById('taskAgent');
+                    agentSelect.innerHTML = '<option value="">Select Agent</option>' +
+                        agents.map(agent => `<option value="${agent.id}">${agent.name}</option>`).join('');
+                }
+
+                if (scriptsRes.ok) {
+                    const scripts = await scriptsRes.json();
+                    const scriptSelect = document.getElementById('taskScript');
+                    scriptSelect.innerHTML = '<option value="">Select Script</option>' +
+                        scripts.map(script => `<option value="${script.id}">${script.name}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading agents/scripts:', error);
+            }
+        });
+    </script>
+</body>
+</html>
