@@ -1,5 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -18,6 +19,8 @@ class Agent(Base):
     description = Column(String)
     status = Column(String)
 
+    tasks = relationship("Task", back_populates="agent")
+
 class Script(Base):
     __tablename__ = "scripts"
 
@@ -26,11 +29,16 @@ class Script(Base):
     description = Column(String)
     filename = Column(String)
 
+    tasks = relationship("Task", back_populates="script")
+
 class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String)
-    script_id = Column(Integer)
-    agent_id = Column(Integer)
+    script_id = Column(Integer, ForeignKey("scripts.id"), index=True)
+    agent_id = Column(Integer, ForeignKey("agents.id"), index=True)
+
+    script = relationship("Script", back_populates="tasks")
+    agent = relationship("Agent", back_populates="tasks")
