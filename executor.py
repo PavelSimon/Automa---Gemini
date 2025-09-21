@@ -4,9 +4,14 @@ import tempfile
 import logging
 from pathlib import Path
 from typing import Dict, Any
-import resource
-import signal
 import time
+
+# Import resource module only on Unix systems
+try:
+    import resource
+    HAS_RESOURCE = True
+except ImportError:
+    HAS_RESOURCE = False
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +96,9 @@ class ScriptExecutor:
 
     def _set_limits(self):
         """Set resource limits for the subprocess (Unix only)"""
+        if not HAS_RESOURCE:
+            return
+
         try:
             # Set memory limit
             resource.setrlimit(resource.RLIMIT_AS, (self.memory_limit, self.memory_limit))

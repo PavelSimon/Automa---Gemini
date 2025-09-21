@@ -11,7 +11,7 @@ class User(BaseModel):
     email: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
@@ -32,7 +32,7 @@ class Agent(AgentBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ScriptBase(BaseModel):
     name: str
@@ -47,7 +47,7 @@ class Script(ScriptBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class TaskBase(BaseModel):
     name: str
@@ -66,7 +66,7 @@ class Task(TaskBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class TaskUpdate(BaseModel):
     name: Optional[str] = None
@@ -92,4 +92,4 @@ class AuditLog(AuditLogBase):
     timestamp: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
